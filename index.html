@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lắc Lì Xì & Quẻ Kinh Dịch</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background: #f8d7da; color: #721c24; }
+        #input-section { margin: 20px; }
+        #result { margin: 20px; font-size: 24px; display: none; }
+        input { padding: 10px; font-size: 18px; }
+        button { padding: 10px 20px; font-size: 18px; background: #dc3545; color: white; border: none; }
+    </style>
+</head>
+<body>
+    <h1>Lắc Lì Xì Tết & Quẻ Kinh Dịch</h1>
+    <div id="input-section">
+        <label>Nhập tên bạn:</label><br>
+        <input type="text" id="name" placeholder="Ví dụ: Thanh"><br><br>
+        <button onclick="startShake()">Bắt đầu lắc!</button>
+    </div>
+    <div id="result"></div>
+
+    <script>
+        const liXiOptions = [30000, 30000, 30000, 30000, 50000, 50000, 50000, 100000, 100000, 200000]; // Tỷ lệ 4-3-2-1
+        const hexagrams = [ // Danh sách 64 quẻ (có thể mở rộng chú giải chi tiết hơn)
+            {number: 1, chinese: "乾 (qián)", english: "The Creative", desc: "Force"},
+            {number: 2, chinese: "坤 (kūn)", english: "The Receptive", desc: "Field"},
+            {number: 3, chinese: "屯 (zhūn)", english: "Difficulty at the Beginning", desc: "Sprouting"},
+            {number: 4, chinese: "蒙 (méng)", english: "Youthful Folly", desc: "Enveloping"},
+            {number: 5, chinese: "需 (xū)", english: "Waiting", desc: "Attending"},
+            {number: 6, chinese: "訟 (sòng)", english: "Conflict", desc: "Arguing"},
+            {number: 7, chinese: "師 (shī)", english: "The Army", desc: "Leading"},
+            {number: 8, chinese: "比 (bǐ)", english: "Holding Together", desc: "Grouping"},
+            {number: 9, chinese: "小畜 (xiǎo xù)", english: "Small Taming", desc: "Small Accumulating"},
+            {number: 10, chinese: "履 (lǚ)", english: "Treading", desc: "Treading"},
+            {number: 11, chinese: "泰 (tài)", english: "Peace", desc: "Pervading"},
+            {number: 12, chinese: "否 (pǐ)", english: "Standstill", desc: "Obstruction"},
+            {number: 13, chinese: "同人 (tóng rén)", english: "Fellowship", desc: "Concording People"},
+            {number: 14, chinese: "大有 (dà yǒu)", english: "Great Possession", desc: "Great Possessing"},
+            {number: 15, chinese: "謙 (qiān)", english: "Modesty", desc: "Humbling"},
+            {number: 16, chinese: "豫 (yù)", english: "Enthusiasm", desc: "Providing-For"},
+            {number: 17, chinese: "隨 (suí)", english: "Following", desc: "Following"},
+            {number: 18, chinese: "蠱 (gǔ)", english: "Work on the Decayed", desc: "Correcting"},
+            {number: 19, chinese: "臨 (lín)", english: "Approach", desc: "Nearing"},
+            {number: 20, chinese: "觀 (guān)", english: "Contemplation", desc: "Viewing"},
+            {number: 21, chinese: "噬嗑 (shì kè)", english: "Biting Through", desc: "Gnawing Bite"},
+            {number: 22, chinese: "賁 (bì)", english: "Grace", desc: "Adorning"},
+            {number: 23, chinese: "剝 (bō)", english: "Splitting Apart", desc: "Stripping"},
+            {number: 24, chinese: "復 (fù)", english: "Return", desc: "Returning"},
+            {number: 25, chinese: "无妄 (wú wàng)", english: "Innocence", desc: "Without Embroiling"},
+            {number: 26, chinese: "大畜 (dà xù)", english: "Great Taming", desc: "Great Accumulating"},
+            {number: 27, chinese: "頤 (yí)", english: "Mouth Corners", desc: "Swallowing"},
+            {number: 28, chinese: "大過 (dà guò)", english: "Great Preponderance", desc: "Great Exceeding"},
+            {number: 29, chinese: "坎 (kǎn)", english: "The Abysmal", desc: "Gorge"},
+            {number: 30, chinese: "離 (lí)", english: "The Clinging", desc: "Radiance"},
+            {number: 31, chinese: "咸 (xián)", english: "Influence", desc: "Conjoining"},
+            {number: 32, chinese: "恆 (héng)", english: "Duration", desc: "Persevering"},
+            {number: 33, chinese: "遯 (dùn)", english: "Retreat", desc: "Retiring"},
+            {number: 34, chinese: "大壯 (dà zhuàng)", english: "Great Power", desc: "Great Invigorating"},
+            {number: 35, chinese: "晉 (jìn)", english: "Progress", desc: "Prospering"},
+            {number: 36, chinese: "明夷 (míng yí)", english: "Darkening of the Light", desc: "Darkening of the Light"},
+            {number: 37, chinese: "家人 (jiā rén)", english: "The Family", desc: "Dwelling People"},
+            {number: 38, chinese: "睽 (kuí)", english: "Opposition", desc: "Polarising"},
+            {number: 39, chinese: "蹇 (jiǎn)", english: "Obstruction", desc: "Limping"},
+            {number: 40, chinese: "解 (jiě)", english: "Deliverance", desc: "Taking-Apart"},
+            {number: 41, chinese: "損 (sǔn)", english: "Decrease", desc: "Diminishing"},
+            {number: 42, chinese: "益 (yì)", english: "Increase", desc: "Augmenting"},
+            {number: 43, chinese: "夬 (guài)", english: "Breakthrough", desc: "Displacement"},
+            {number: 44, chinese: "姤 (gòu)", english: "Coming to Meet", desc: "Coupling"},
+            {number: 45, chinese: "萃 (cuì)", english: "Gathering Together", desc: "Clustering"},
+            {number: 46, chinese: "升 (shēng)", english: "Pushing Upward", desc: "Ascending"},
+            {number: 47, chinese: "困 (kùn)", english: "Oppression", desc: "Confining"},
+            {number: 48, chinese: "井 (jǐng)", english: "The Well", desc: "Welling"},
+            {number: 49, chinese: "革 (gé)", english: "Revolution", desc: "Skinning"},
+            {number: 50, chinese: "鼎 (dǐng)", english: "The Cauldron", desc: "Holding"},
+            {number: 51, chinese: "震 (zhèn)", english: "The Arousing", desc: "Shake"},
+            {number: 52, chinese: "艮 (gèn)", english: "The Keeping Still", desc: "Bound"},
+            {number: 53, chinese: "漸 (jiàn)", english: "Development", desc: "Infiltrating"},
+            {number: 54, chinese: "歸妹 (guī mèi)", english: "The Marrying Maiden", desc: "Converting the Maiden"},
+            {number: 55, chinese: "豐 (fēng)", english: "Abundance", desc: "Abounding"},
+            {number: 56, chinese: "旅 (lǚ)", english: "The Wanderer", desc: "Sojourning"},
+            {number: 57, chinese: "巽 (xùn)", english: "The Gentle", desc: "Ground"},
+            {number: 58, chinese: "兌 (duì)", english: "The Joyous", desc: "Open"},
+            {number: 59, chinese: "渙 (huàn)", english: "Dispersion", desc: "Dispersing"},
+            {number: 60, chinese: "節 (jié)", english: "Limitation", desc: "Articulating"},
+            {number: 61, chinese: "中孚 (zhōng fú)", english: "Inner Truth", desc: "Center Returning"},
+            {number: 62, chinese: "小過 (xiǎo guò)", english: "Small Preponderance", desc: "Small Exceeding"},
+            {number: 63, chinese: "既濟 (jì jì)", english: "After Completion", desc: "Already Fording"},
+            {number: 64, chinese: "未濟 (wèi jì)", english: "Before Completion", desc: "Not Yet Fording"}
+        ];
+
+        let lastShake = 0;
+        let shaking = false;
+
+        function startShake() {
+            const name = document.getElementById('name').value.trim();
+            if (!name) {
+                alert('Vui lòng nhập tên!');
+                return;
+            }
+            document.getElementById('input-section').innerHTML = '<p>Lắc điện thoại mạnh để nhận lì xì!</p>';
+
+            // Xin phép detect motion trên iOS
+            if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                DeviceMotionEvent.requestPermission()
+                    .then(permissionState => {
+                        if (permissionState === 'granted') {
+                            window.addEventListener('devicemotion', handleShake);
+                        } else {
+                            alert('Không có quyền truy cập cảm biến!');
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                // Trên Android hoặc desktop
+                window.addEventListener('devicemotion', handleShake);
+            }
+        }
+
+        function handleShake(event) {
+            const now = Date.now();
+            if (now - lastShake < 1000) return; // Tránh lắc liên tục
+
+            const acceleration = event.accelerationIncludingGravity;
+            const shakeThreshold = 15; // Ngưỡng lắc
+            if (Math.abs(acceleration.x) > shakeThreshold || Math.abs(acceleration.y) > shakeThreshold || Math.abs(acceleration.z) > shakeThreshold) {
+                if (!shaking) {
+                    shaking = true;
+                    generateResult();
+                }
+            } else {
+                shaking = false;
+            }
+            lastShake = now;
+        }
+
+        function generateResult() {
+            const name = document.getElementById('name').value.trim();
+            const liXi = liXiOptions[Math.floor(Math.random() * liXiOptions.length)];
+            const hex = hexagrams[Math.floor(Math.random() * hexagrams.length)];
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <h2>Lì xì cho ${name}: ${liXi.toLocaleString('vi-VN')} VND</h2>
+                <h3>Quẻ Kinh Dịch: Số ${hex.number}: ${hex.chinese} - ${hex.english}</h3>
+                <p>Chú giải: ${hex.desc}</p>
+            `;
+            resultDiv.style.display = 'block';
+            // Dừng listener nếu cần
+            window.removeEventListener('devicemotion', handleShake);
+        }
+    </script>
+</body>
+</html>
